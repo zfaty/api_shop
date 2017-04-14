@@ -1,0 +1,46 @@
+# To get started with security, check out the documentation:
+# http://symfony.com/doc/current/security.html
+security:
+    access_control:
+        - { path: ^/api/users/new , roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST, PUT] }
+        - { path: ^/api/login , roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST, PUT] }
+        - { path: ^/api , roles: ROLE_USER }
+    # http://symfony.com/doc/current/security.html#b-configuring-how-users-are-loaded
+
+    encoders:
+        ApiBundle\Entity\User:
+            algorithm: bcrypt
+        ApiBundle\Entity\ShopUser:
+            algorithm: bcrypt
+
+    providers:
+        db_provider:
+            entity:
+                class: ApiBundle:User
+                property: apiKey
+
+    firewalls:
+        secured_area:
+            anonymous: ~
+            pattern: ^/api
+            stateless: false
+            guard:
+                authenticator:
+                  - app.token_authenticator
+            provider: db_provider
+        # disables authentication for assets and the profiler, adapt it according to your needs
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        main:
+            anonymous: ~
+            logout: ~
+
+            # activate different ways to authenticate
+
+            # http://symfony.com/doc/current/security.html#a-configuring-how-your-users-will-authenticate
+            #http_basic: ~
+
+            # http://symfony.com/doc/current/cookbook/security/form_login_setup.html
+            #form_login: ~
